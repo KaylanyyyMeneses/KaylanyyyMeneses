@@ -1,0 +1,68 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import adfuller
+
+%matplotlib inline
+
+file_path = '/content/INPC.xlsx'
+df = pd.read_excel(file_path)
+
+df.head()
+
+X = df["value"]
+
+plt.plot(df["value"])
+
+TESTE DE ESTACIONARIEDADE
+
+result = adfuller(X)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+
+if result[0] < result[4]['5%']:
+    print('Reject Ho - Time Series is Stationary')
+else:
+    print('Failed to Reject Ho - Time Series is Non-Stationary')
+
+
+DIFERENCIAÇÃO DE SERIE PARA ESTACIONAERIEDADE
+
+df["Diff_Value"] = df["value"].diff().dropna()
+X = df["Diff_Value"].dropna()
+plt.plot(X)
+plt.title('Série Temporal Diferenciada')
+plt.show()
+
+# Realizar o teste de Dickey-Fuller
+result = adfuller(X)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+
+if result[0] < result[4]['5%']:
+    print('Reject Ho - Time Series is Stationary')
+else:
+    print('Failed to Reject Ho - Time Series is Non-Stationary')
+
+OUTRO TIPO DE TESTE 
+df["Diff_Value"] = df["value"].diff().dropna()
+
+Diff_Values = df["Diff_Value"].values
+Y = Diff_Values[~np.isnan(Diff_Values)]
+
+ts_values_orig = df["value"].values
+ts_values = ts_values_orig [: - 1 ]
+
+x = sm.add_constant(ts_values)
+
+
+model = sm.OLS(Y, x)
+results = model.fit()
+
+print(results.summary())
