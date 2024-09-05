@@ -216,3 +216,132 @@ plt.show()
 decomposition = seasonal_decompose(df_filtered['value'].dropna(), model='additive', period=12)
 decomposition.plot()
 plt.show()
+
+
+
+
+------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import adfuller
+
+%matplotlib inline
+
+file_path = '/content/INPC.xlsx'
+df = pd.read_excel(file_path)
+
+df.head()
+
+df['date'] = pd.to_datetime(df['date'])
+
+df_filtered = df[df['date'].dt.year >= 2020]
+
+print(df_filtered)
+
+TESTE DE ESTACIONARIEDADE
+
+result = adfuller(X)
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+
+if result[0] < result[4]['5%']:
+    print('Reject Ho - Time Series is Stationary')
+else:
+    print('Failed to Reject Ho - Time Series is Non-Stationary')
+
+
+ADF Statistic: -2.157146
+p-value: 0.222165
+Critical Values:
+	1%: -3.443
+	5%: -2.867
+	10%: -2.570
+Failed to Reject Ho - Time Series is Non-Stationary
+
+df["Diff_Value"] = df["value"].diff().dropna()
+X = df["Diff_Value"].dropna()
+plt.plot(X)
+plt.title('Série Temporal Diferenciada')
+plt.show()
+
+adf sem tendencia e sazonalidade
+import pandas as pd
+from statsmodels.tsa.stattools import adfuller
+
+file_path = '/content/INPC.xlsx'
+df = pd.read_excel(file_path)
+df['date'] = pd.to_datetime(df['date'])
+df_filtered = df[df['date'].dt.year >= 2020]
+
+# Selecionando a serie filtrada
+X = df_filtered['value'].dropna()
+
+# Realizar o teste ADF sem constante e sem tendência
+result = adfuller(X, maxlag=10, regression='n', autolag='BIC')
+
+# Exibir os resultados
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+
+if result[0] < result[4]['5%']:
+    print('Reject Ho - Time Series is Stationary')
+else:
+    print('Failed to Reject Ho - Time Series is Non-Stationary')
+
+ADF Statistic: -15.743977
+p-value: 0.000000
+Critical Values:
+	1%: -2.570
+	5%: -1.942
+	10%: -1.616
+Reject Ho - Time Series is Stationary
+
+# Plotar a série temporal diferenciada
+plt.plot(X)
+plt.title('Série Temporal Diferenciada')
+plt.show()
+
+ADF com drift
+
+# Realizar o teste ADF com drift
+result = adfuller(X, maxlag=10, regression='c', autolag='BIC')
+
+
+# Exibir os resultados
+print('ADF Statistic: %f' % result[0])
+print('p-value: %f' % result[1])
+print('Critical Values:')
+for key, value in result[4].items():
+    print('\t%s: %.3f' % (key, value))
+
+if result[0] < result[4]['5%']:
+    print('Reject Ho - Time Series is Stationary')
+else:
+    print('Failed to Reject Ho - Time Series is Non-Stationary')
+
+ADF Statistic: -15.729038
+p-value: 0.000000
+Critical Values:
+	1%: -3.443
+	5%: -2.867
+	10%: -2.570
+Reject Ho - Time Series is Stationary
+
+# Plotar a série temporal diferenciada
+plt.plot(X)
+plt.title('Série Temporal Diferenciada')
+plt.show()
+
+# Decompor a série temporal para verificar a sazonalidade
+decomposition = seasonal_decompose(df_filtered['value'].dropna(), model='additive', period=12)
+decomposition.plot()
+plt.show()
+
+
